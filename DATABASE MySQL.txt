@@ -1,0 +1,22 @@
+CREATE DATABASE matricula;
+
+USE matricula;
+
+CREATE TABLE Profesor (
+    id INT PRIMARY KEY,
+    nombre VARCHAR(100),
+    correo VARCHAR(100)
+);
+
+CREATE TABLE Curso (
+    id VARCHAR(10) PRIMARY KEY,
+    nombre VARCHAR(100),
+    creditos INT
+);
+
+-- Insertando algunos valores de ejemplo
+INSERT INTO Profesor (id, nombre, correo) VALUES (1, 'Geraldo', 'colchado@utec');
+INSERT INTO Profesor (id, nombre, correo) VALUES (2, 'Ángel', 'napa@utec');
+
+INSERT INTO Curso (id, nombre, creditos) VALUES ('CS1', 'Cloud', 4);
+INSERT INTO Curso (id, nombre, creditos) VALUES ('CS2', 'ADA', 4);
