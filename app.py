@@ -1,61 +1,51 @@
 from flask import Flask, jsonify, request
 import MySQLdb
 
-app = Flask(_name_)
+app = Flask(__name__)
 
 # Configuración de la conexión a MySQL
 db = MySQLdb.connect(
-    host="localhost", 
+    host="localhost",  
     user="root",
     passwd="password", 
     db="matricula"
 )
 
-@app.route('/profesores', methods=['GET'])
-def get_profesores():
+# Obteniendo todos los registros de "Dicta"
+@app.route('/dicta', methods=['GET'])
+def get_dicta():
     cursor = db.cursor()
-    cursor.execute("SELECT * FROM Profesor")
-    profesores = cursor.fetchall()
+    cursor.execute("""
+        SELECT d.id, p.nombres, d.codigo_curso, d.nombre_curso, d.seccion, d.periodo, d.cant_horas
+        FROM Dicta d
+        JOIN Profesor p ON d.id_profesor = p.id
+    """)
+    dicta = cursor.fetchall()
     resultado = []
-    for profesor in profesores:
+    for item in dicta:
         resultado.append({
-            'id': profesor[0],
-            'nombre': profesor[1],
-            'correo': profesor[2]
+            'id': item[0],
+            'profesor': item[1],
+            'codigo_curso': item[2],
+            'nombre_curso': item[3],
+            'seccion': item[4],
+            'periodo': item[5],
+            'cant_horas': item[6]
         })
     return jsonify(resultado)
 
-@app.route('/profesores', methods=['POST'])
-def add_profesor():
-    nuevo_profesor = request.json
+# Añadiendo un nuevo registro a "Dicta"
+@app.route('/dicta', methods=['POST'])
+def add_dicta():
+    nuevo_dicta = request.json
     cursor = db.cursor()
-    cursor.execute("INSERT INTO Profesor (id, nombre, correo) VALUES (%s, %s, %s)",
-                   (nuevo_profesor['id'], nuevo_profesor['nombre'], nuevo_profesor['correo']))
+    cursor.execute("""
+        INSERT INTO Dicta (id_profesor, codigo_curso, nombre_curso, seccion, periodo, cant_horas)
+        VALUES (%s, %s, %s, %s, %s, %s)
+    """, (nuevo_dicta['id_profesor'], nuevo_dicta['codigo_curso'], nuevo_dicta['nombre_curso'], 
+          nuevo_dicta['seccion'], nuevo_dicta['periodo'], nuevo_dicta.get('cant_horas')))
     db.commit()
-    return jsonify({'mensaje': 'Profesor agregado'}), 201
+    return jsonify({'mensaje': 'Dicta agregado correctamente'}), 201
 
-@app.route('/cursos', methods=['GET'])
-def get_cursos():
-    cursor = db.cursor()
-    cursor.execute("SELECT * FROM Curso")
-    cursos = cursor.fetchall()
-    resultado = []
-    for curso in cursos:
-        resultado.append({
-            'id': curso[0],
-            'nombre': curso[1],
-            'creditos': curso[2]
-        })
-    return jsonify(resultado)
-
-@app.route('/cursos', methods=['POST'])
-def add_curso():
-    nuevo_curso = request.json
-    cursor = db.cursor()
-    cursor.execute("INSERT INTO Curso (id, nombre, creditos) VALUES (%s, %s, %s)",
-                   (nuevo_curso['id'], nuevo_curso['nombre'], nuevo_curso['creditos']))
-    db.commit()
-    return jsonify({'mensaje': 'Curso agregado'}), 201
-
-if _name_ == '_main_':
-    app.run(host='0.0.0.0', port=8005)
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=8005)

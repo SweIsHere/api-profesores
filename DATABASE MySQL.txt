@@ -4,19 +4,26 @@ USE matricula;
 
 CREATE TABLE Profesor (
     id INT PRIMARY KEY,
-    nombre VARCHAR(100),
-    correo VARCHAR(100)
+    nombres VARCHAR(100),
+    correo VARCHAR(100),
+    sueldo DECIMAL(10, 2),
+    fecha_nacimiento DATE
 );
 
-CREATE TABLE Curso (
-    id VARCHAR(10) PRIMARY KEY,
-    nombre VARCHAR(100),
-    creditos INT
+CREATE TABLE Dicta (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    id_profesor INT,
+    codigo_curso VARCHAR(10),
+    nombre_curso VARCHAR(100),
+    seccion INT,
+    periodo VARCHAR(10),
+    cant_horas INT,
+    FOREIGN KEY (id_profesor) REFERENCES Profesor(id)
 );
 
--- Insertando algunos valores de ejemplo
-INSERT INTO Profesor (id, nombre, correo) VALUES (1, 'Geraldo', 'colchado@utec');
-INSERT INTO Profesor (id, nombre, correo) VALUES (2, 'Ángel', 'napa@utec');
+-- Datos de ejemplo:
+INSERT INTO Profesor (id, nombres, correo, sueldo, fecha_nacimiento) 
+VALUES (1, 'Geraldo', 'colchado@utec', 3500.00, '1980-05-10');
 
-INSERT INTO Curso (id, nombre, creditos) VALUES ('CS1', 'Cloud', 4);
-INSERT INTO Curso (id, nombre, creditos) VALUES ('CS2', 'ADA', 4);
+INSERT INTO Dicta (id_profesor, codigo_curso, nombre_curso, seccion, periodo, cant_horas) 
+VALUES (1, 'CS2031', 'Cloud Computing', 1, '2024-2', 12);
