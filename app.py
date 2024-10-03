@@ -3,15 +3,15 @@ import MySQLdb
 
 app = Flask(__name__)
 
-# Configuración de la conexión a MySQL
+# Configurando de la conexión a MySQL:
 db = MySQLdb.connect(
-    host="localhost",  
+    host="localhost", 
     user="root",
-    passwd="password", 
+    passwd="password",  
     db="matricula"
 )
 
-# Obteniendo todos los registros de "Dicta"
+# Obteniendo todos los registros de "Dicta":
 @app.route('/dicta', methods=['GET'])
 def get_dicta():
     cursor = db.cursor()
@@ -34,7 +34,7 @@ def get_dicta():
         })
     return jsonify(resultado)
 
-# Añadiendo un nuevo registro a "Dicta"
+# Añadiendo un nuevo registro a "Dicta":
 @app.route('/dicta', methods=['POST'])
 def add_dicta():
     nuevo_dicta = request.json
