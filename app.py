@@ -3,49 +3,73 @@ import MySQLdb
 
 app = Flask(__name__)
 
-# Configurando de la conexión a MySQL:
+# Configuración de la conexión a MySQL:
 db = MySQLdb.connect(
-    host="localhost", 
+    host="localhost",
     user="root",
-    passwd="password",  
-    db="matricula"
+    password="password", 
+    database="matricula"
 )
 
-# Obteniendo todos los registros de "Dicta":
+# Creando un cursor:
+cursor = db.cursor()
+
+# Endpoint para obtener todos los registros de la tabla Dicta (GET):
 @app.route('/dicta', methods=['GET'])
 def get_dicta():
-    cursor = db.cursor()
-    cursor.execute("""
-        SELECT d.id, p.nombres, d.codigo_curso, d.nombre_curso, d.seccion, d.periodo, d.cant_horas
-        FROM Dicta d
-        JOIN Profesor p ON d.id_profesor = p.id
-    """)
-    dicta = cursor.fetchall()
-    resultado = []
-    for item in dicta:
-        resultado.append({
-            'id': item[0],
-            'profesor': item[1],
-            'codigo_curso': item[2],
-            'nombre_curso': item[3],
-            'seccion': item[4],
-            'periodo': item[5],
-            'cant_horas': item[6]
+    cursor.execute("SELECT * FROM Dicta")
+    dicta_records = cursor.fetchall()
+    result = []
+    for row in dicta_records:
+        result.append({
+            'id': row[0],
+            'id_profesor': row[1],
+            'codigo_curso': row[2],
+            'nombre_curso': row[3],
+            'seccion': row[4],
+            'periodo': row[5],
+            'cant_horas': row[6] if row[6] is not None else 0
         })
-    return jsonify(resultado)
+    return jsonify(result)
 
-# Añadiendo un nuevo registro a "Dicta":
+# Endpoint para agregar un registro en la tabla Dicta (POST):
 @app.route('/dicta', methods=['POST'])
-def add_dicta():
-    nuevo_dicta = request.json
-    cursor = db.cursor()
-    cursor.execute("""
-        INSERT INTO Dicta (id_profesor, codigo_curso, nombre_curso, seccion, periodo, cant_horas)
-        VALUES (%s, %s, %s, %s, %s, %s)
-    """, (nuevo_dicta['id_profesor'], nuevo_dicta['codigo_curso'], nuevo_dicta['nombre_curso'], 
-          nuevo_dicta['seccion'], nuevo_dicta['periodo'], nuevo_dicta.get('cant_horas')))
-    db.commit()
-    return jsonify({'mensaje': 'Dicta agregado correctamente'}), 201
+def create_dicta():
+    data = request.get_json()
+    id_profesor = data.get('id_profesor')
+    codigo_curso = data.get('codigo_curso')
+    nombre_curso = data.get('nombre_curso')
+    seccion = data.get('seccion')
+    periodo = data.get('periodo')
+    cant_horas = data.get('cant_horas', 0)
 
+    query = """
+    INSERT INTO Dicta (id_profesor, codigo_curso, nombre_curso, seccion, periodo, cant_horas)
+    VALUES (%s, %s, %s, %s, %s, %s)
+    """
+    cursor.execute(query, (id_profesor, codigo_curso, nombre_curso, seccion, periodo, cant_horas))
+    db.commit()
+    
+    return jsonify({'message': 'Dicta created successfully'}), 201
+
+# Endpoint para agregar un Profesor (POST):
+@app.route('/profesor', methods=['POST'])
+def create_profesor():
+    data = request.get_json()
+    nombres = data.get('nombres')
+    correo = data.get('correo')
+    sueldo = data.get('sueldo')
+    fecha_nacimiento = data.get('fecha_nacimiento')  # Formato: YYYY-MM-DD
+
+    query = """
+    INSERT INTO Profesor (nombres, correo, sueldo, fecha_nacimiento)
+    VALUES (%s, %s, %s, %s)
+    """
+    cursor.execute(query, (nombres, correo, sueldo, fecha_nacimiento))
+    db.commit()
+
+    return jsonify({'message': 'Profesor created successfully'}), 201
+
+# Ejecutando la aplicación:
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8005)
+    app.run(host='0.0.0.0', port=8005, debug=True)
