@@ -1,29 +1,33 @@
 from flask import Flask, jsonify, request
-import MySQLdb
+import mysql.connector
 
 app = Flask(__name__)
 
-# Configuración de la conexión a MySQL:
-db = MySQLdb.connect(
-    host="localhost",
+# Configuración de la conexión a MySQL usando mysql.connector:
+db = mysql.connector.connect(
+    host="localhost",  
     user="root",
-    password="password", 
+    password="password",  
     database="matricula"
 )
 
-# Creando un cursor:
+# Crear un cursor global
 cursor = db.cursor()
 
 # Endpoint para obtener todos los registros de la tabla Dicta (GET):
 @app.route('/dicta', methods=['GET'])
 def get_dicta():
-    cursor.execute("SELECT * FROM Dicta")
+    cursor.execute("""
+        SELECT d.id, p.nombres, d.codigo_curso, d.nombre_curso, d.seccion, d.periodo, d.cant_horas
+        FROM Dicta d
+        JOIN Profesor p ON d.id_profesor = p.id
+    """)
     dicta_records = cursor.fetchall()
     result = []
     for row in dicta_records:
         result.append({
             'id': row[0],
-            'id_profesor': row[1],
+            'profesor': row[1],
             'codigo_curso': row[2],
             'nombre_curso': row[3],
             'seccion': row[4],
@@ -49,17 +53,17 @@ def create_dicta():
     """
     cursor.execute(query, (id_profesor, codigo_curso, nombre_curso, seccion, periodo, cant_horas))
     db.commit()
-    
+
     return jsonify({'message': 'Dicta created successfully'}), 201
 
-# Endpoint para agregar un Profesor (POST):
+# Nuevo endpoint para agregar un Profesor (POST):
 @app.route('/profesor', methods=['POST'])
 def create_profesor():
     data = request.get_json()
     nombres = data.get('nombres')
     correo = data.get('correo')
     sueldo = data.get('sueldo')
-    fecha_nacimiento = data.get('fecha_nacimiento')  # Formato: YYYY-MM-DD
+    fecha_nacimiento = data.get('fecha_nacimiento')
 
     query = """
     INSERT INTO Profesor (nombres, correo, sueldo, fecha_nacimiento)
@@ -73,3 +77,4 @@ def create_profesor():
 # Ejecutando la aplicación:
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8005, debug=True)
+
