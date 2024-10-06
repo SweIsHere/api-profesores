@@ -5,10 +5,11 @@ app = Flask(__name__)
 
 # Configuración de la conexión a MySQL usando mysql.connector:
 db = mysql.connector.connect(
-    host="localhost",  
+    host="52.45.141.206",
     user="root",
-    password="password",  
-    database="matricula"
+    password="utec",
+    database="matricula",
+    port=8003
 )
 
 # Crear un cursor global
@@ -77,4 +78,3 @@ def create_profesor():
 # Ejecutando la aplicación:
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8005, debug=True)
-
