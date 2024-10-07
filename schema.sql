@@ -3,7 +3,7 @@ CREATE DATABASE matricula;
 USE matricula;
 
 CREATE TABLE Profesor (
-    id INT PRIMARY KEY,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     nombres VARCHAR(100),
     correo VARCHAR(100),
     sueldo DECIMAL(10, 2),
