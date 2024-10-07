@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request,json,Response
 import mysql.connector
 
 app = Flask(__name__)
@@ -140,7 +140,11 @@ def get_profesor(id):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-
+@app.route('/')
+def base():
+    return Response(response=json.dumps({"Status": "UP"}),
+                    status=200,
+                    mimetype='application/json')
 
 @app.route('/profesor/correo/<string:correo>', methods=['GET'])
 def get_profesor_by_correo(correo):
